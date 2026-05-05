@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { usersTable } from './src/drizzle/schema/testtable.js';
   
 const db = drizzle(process.env.DATABASE_URL);
@@ -31,6 +31,14 @@ async function main() {
     .set({ age: 32 })
     .where(eq(usersTable.email, 'john@example.com'));
   console.log('✓ User updated');
+
+  // READ: Search by name or email
+  const searchTerm = 'Jane'; // User can input email or name here
+  const searchResult = await db
+    .select()
+    .from(usersTable)
+    .where(or(eq(usersTable.name, searchTerm), eq(usersTable.email, searchTerm)));
+  console.log('✓ Search result (name or email):', searchResult);
 
   // DELETE: Delete user (commented out)
   // await db.delete(usersTable).where(eq(usersTable.email, 'jane@example.com'));
