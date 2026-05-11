@@ -1,0 +1,105 @@
+name: Hourly Package Health Check
+
+on:
+  schedule:
+    - cron: "0 * * * *" # every hour
+  workflow_dispatch:
+
+jobs:
+  package-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Show Node and NPM Versions
+        run: |
+          echo "Node Version:"
+          node -v
+
+          echo "NPM Version:"
+          npm -v
+
+      - name: Create Test Folders
+        run: |
+          mkdir test1
+          mkdir test2
+          mkdir test3
+          mkdir test4
+          mkdir test5
+          mkdir test6
+          mkdir test7
+
+      - name: Install Packages in Test Folder 1
+        run: |
+          cd test1
+          npm init -y
+          npm install fonotify
+          npm install toonkit
+          npm list
+
+      - name: Install Packages in Test Folder 2
+        run: |
+          cd test2
+          npm init -y
+          npm install fonotify@latest
+          npm install toonkit@latest
+          npm list
+
+      - name: Install Packages in Test Folder 3
+        run: |
+          cd test3
+          npm init -y
+          npm install fonotify toonkit
+          npm list
+
+      - name: Install Packages in Test Folder 4
+        run: |
+          cd test4
+          npm init -y
+          npm install fonotify --save
+          npm install toonkit --save
+          npm list
+
+      - name: Install Packages in Test Folder 5
+        run: |
+          cd test5
+          npm init -y
+          npm install fonotify --force
+          npm install toonkit --force
+          npm list
+
+      - name: Install Packages in Test Folder 6
+        run: |
+          cd test6
+          npm init -y
+          npm install fonotify toonkit --legacy-peer-deps
+          npm list
+
+      - name: Install Packages in Test Folder 7
+        run: |
+          cd test7
+          npm init -y
+          npm install fonotify
+          npm install toonkit
+
+          echo "const fonotify = require('fonotify');" > index.js
+          echo "const toonkit = require('toonkit');" >> index.js
+          echo "console.log('Packages Loaded Successfully');" >> index.js
+
+          node index.js
+
+      - name: Workflow Completed
+        run: |
+          echo "All package installation tests completed successfully."
